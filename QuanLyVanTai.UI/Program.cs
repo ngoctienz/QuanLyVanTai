@@ -63,7 +63,7 @@ namespace QuanLyVanTai.UI
                 return;
             }
 
-            // 3. Vòng lặp xác thực người dùng (Login -> Main -> Logout -> Login)
+            // 3. Vòng lặp xác thực người dùng (Login -> Main/Customer Form -> Logout -> Login)
             while (true)
             {
                 using (var authForm = new FrmAuth())
@@ -76,12 +76,21 @@ namespace QuanLyVanTai.UI
                     }
                 }
 
-                // Nếu đăng nhập thành công -> Mở FormMain
+                // Nếu đăng nhập thành công -> Kiểm tra vai trò để mở Form tương ứng
                 if (SessionManager.IsLoggedIn)
                 {
-                    Application.Run(new FormMain());
+                    string role = SessionManager.CurrentUser?.Role ?? "Guest";
 
-                    // Khi FormMain đóng:
+                    if (role.Equals("User", StringComparison.OrdinalIgnoreCase) || role.Equals("Customer", StringComparison.OrdinalIgnoreCase))
+                    {
+                        Application.Run(new FormMain_KhachHang());
+                    }
+                    else
+                    {
+                        Application.Run(new FormMain());
+                    }
+
+                    // Khi Form đóng:
                     // Nếu session đã bị xóa (do người dùng bấm Đăng xuất) -> quay lại mở FrmAuth
                     // Nếu session vẫn còn (người dùng bấm nút X tắt ứng dụng) -> thoát vòng lặp
                     if (SessionManager.IsLoggedIn)
